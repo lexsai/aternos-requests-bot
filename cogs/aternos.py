@@ -57,7 +57,7 @@ class Aternos(commands.Cog):
                                   'https://aternos.org/panel/ajax/start.php',
                                    params = {'headstart' : 0, 
                                              'ASEC':f'{self.x}:{self.y}'},
-                                   proxy='198.50.172.164')
+                                   proxy='https://198.50.172.164')
 
         print('[START]', r.status, r.reason, await r.text())       
         return r

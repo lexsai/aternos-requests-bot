@@ -56,8 +56,7 @@ class Aternos(commands.Cog):
         r = await session.request('get',
                                   'https://aternos.org/panel/ajax/start.php',
                                    params = {'headstart' : 0, 
-                                             'ASEC':f'{self.x}:{self.y}'},
-                                   proxy='https://198.50.172.164')
+                                             'ASEC':f'{self.x}:{self.y}'})
 
         print('[START]', r.status, r.reason, await r.text())       
         return r
@@ -75,8 +74,9 @@ class Aternos(commands.Cog):
         print('STARTING:')
 
         cookie = {f'ATERNOS_SEC_{self.x}' : self.y}
+        headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'}
 
-        async with aiohttp.ClientSession(cookies=cookie) as session:
+        async with aiohttp.ClientSession(cookies=cookie, headers=headers) as session:
             await self._login(session)
             r = await self._start(session)
         
@@ -97,8 +97,9 @@ class Aternos(commands.Cog):
         print('STOPPING:')
 
         cookie = {f'ATERNOS_SEC_{self.x}' : self.y}
+        headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'}
 
-        async with aiohttp.ClientSession(cookies=cookie) as session:
+        async with aiohttp.ClientSession(cookies=cookie, headers=headers) as session:
             await self._login(session)  
             await self._stop(session)
 

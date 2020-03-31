@@ -11,6 +11,12 @@ class AternosBot(commands.Bot):
         extensions = sorted([f"cogs.{os.path.splitext(cog)[0]}" for cog in os.listdir("cogs") if os.path.splitext(cog)[1] == '.py'])   
         self.load_extensions(extensions)
 
+    async def on_ready(self):
+        print('-')
+        print(f'Logged in as "{self.user.name}" - User ID : {self.user.id}')
+        print(f'Command Prefix: {self.command_prefix}')
+        print('-')
+
     def load_extensions(self, extensions):
         print("Loading extensions:")
         for extension in extensions:

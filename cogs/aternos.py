@@ -38,11 +38,11 @@ class Aternos(commands.Cog):
         print('[CONFIRM]', r.status, r.reason, await r.text())       
         return r        
 
-    async def _login(self, session):
-        data = {
-            'user' : 'exampleaccount123123',
-            'password' : 'e99a18c428cb38d5f260853678922e03'
-        }
+    async def _login(self, session, data):
+#        data = {
+#            'user' : 'exampleaccount123123',
+#            'password' : 'e99a18c428cb38d5f260853678922e03'
+#        }
 
         r = await session.request('post',
                                   'https://aternos.org/panel/ajax/account/login.php',
@@ -69,6 +69,27 @@ class Aternos(commands.Cog):
         print('[STOP]', r.status, r.reason, await r.text())       
         return r        
 
+    async def get_login(self, ctx):        
+        embed = discord.Embed(title=f'Please check your DMs.',
+                              description=f'{ctx.author.mention}', 
+                              colour=discord.Colour(0x79c496)) 
+        temp_message = await ctx.send(embed=embed)
+        await temp_message.delete(delay=5)
+
+        embed = discord.Embed(title='LOGIN:', 
+                              description='Please send your login details, in format:\n```<username>\n<password>```',
+                              colour=discord.Colour(0x79c496)) 
+        await ctx.author.send(embed=embed)
+
+        credential_msg = await ctx.bot.wait_for('message', check = lambda m: m.guild == None and m.author.id == ctx.author.id, timeout=60)
+        
+        credentials = dict(zip(['user', 'password'], credential_msg.content.split('\n')))
+        
+        await ctx.author.send(f'Thank you, return to {ctx.channel.mention}.')
+
+        print(credentials)
+        return credentials
+
     @commands.command()
     async def start(self, ctx):
         print('STARTING:')
@@ -76,21 +97,30 @@ class Aternos(commands.Cog):
         cookie = {f'ATERNOS_SEC_{self.x}' : self.y}
         headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'}
 
-        async with aiohttp.ClientSession(cookies=cookie, headers=headers) as session:
-            await self._login(session)
-            r = await self._start(session)
-        
-            embed = discord.Embed(title='Aternos server entering queue.', 
-                                  timestamp=datetime.datetime.now(),    
-                                  colour=discord.Colour(0x79c496)) 
-            msg = await ctx.send(embed=embed)
-            
-            await self.manage_queue(session, r.cookies['ATERNOS_SESSION'].value)
+        credentials = await self.get_login(ctx)
 
-            embed = discord.Embed(title='Aternos server starting..', 
-                                  timestamp=datetime.datetime.now(),    
-                                  colour=discord.Colour(0x79c496)) 
-            await msg.edit(embed=embed)
+        async with aiohttp.ClientSession(cookies=cookie, headers=headers) as session:
+            await self._login(session, credentials)
+            r = await self._start(session)
+
+            if 'already' in await r.text():
+                embed = discord.Embed(title='Aternos server already started.', 
+                                      timestamp=datetime.datetime.now(),    
+                                      colour=discord.Colour(0x79c496)) 
+                msg = await ctx.send(embed=embed)
+
+            else:
+                embed = discord.Embed(title='Aternos server entering queue.', 
+                                      timestamp=datetime.datetime.now(),    
+                                      colour=discord.Colour(0x79c496)) 
+                msg = await ctx.send(embed=embed)
+                
+                await self.manage_queue(session, r.cookies['ATERNOS_SESSION'].value)
+
+                embed = discord.Embed(title='Aternos server starting..', 
+                                      timestamp=datetime.datetime.now(),    
+                                      colour=discord.Colour(0x79c496)) 
+                await msg.edit(embed=embed)
 
     @commands.command()
     async def stop(self, ctx):
@@ -99,8 +129,10 @@ class Aternos(commands.Cog):
         cookie = {f'ATERNOS_SEC_{self.x}' : self.y}
         headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36'}
 
+        credentials = await self.get_login(ctx)
+
         async with aiohttp.ClientSession(cookies=cookie, headers=headers) as session:
-            await self._login(session)  
+            await self._login(session, credentials)  
             await self._stop(session)
 
         embed = discord.Embed(title='Aternos server stopped.', 

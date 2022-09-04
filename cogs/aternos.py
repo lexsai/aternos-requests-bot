@@ -39,11 +39,6 @@ class Aternos(commands.Cog):
         return r        
 
     async def _login(self, session, data):
-#        data = {
-#            'user' : 'exampleaccount123123',
-#            'password' : 'e99a18c428cb38d5f260853678922e03'
-#        }
-
         r = await session.request('post',
                                   'https://aternos.org/panel/ajax/account/login.php',
                                    data = data,

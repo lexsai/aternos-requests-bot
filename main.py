@@ -29,6 +29,6 @@ class AternosBot(commands.Bot):
 
 if __name__ == '__main__':
     bot = AternosBot(command_prefix='>')
-    bot.run('NTY2ODg0MzQyNjgxMzA1MDkw.XLLkhQ.iJpxN_SmS0EHKoXsnpxniXG7C18')
+    bot.run('...')
 
 
